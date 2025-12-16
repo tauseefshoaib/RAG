@@ -46,8 +46,8 @@ function App() {
       return alert("Upload PDF and enter a question");
     }
 
-    setLoading(true);
     setAnswer("");
+    setLoading(true);
 
     const res = await fetch(`${API}/ask`, {
       method: "POST",
@@ -55,8 +55,17 @@ function App() {
       body: JSON.stringify({ docId, question }),
     });
 
-    const data = await res.json();
-    setAnswer(data.answer);
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+      setAnswer((prev) => prev + chunk); // 🚀 stream to UI
+    }
+
     setLoading(false);
   };
 
