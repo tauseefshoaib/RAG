@@ -1,6 +1,7 @@
 import express from "express";
 import multer from "multer";
 import swaggerUi from "swagger-ui-express";
+import cors from "cors";
 import { swaggerSpec } from "./swagger.js";
 import { processPdf } from "./pdf.js";
 import { askQuestion } from "./qa.js";
@@ -9,6 +10,7 @@ import { initCollection } from "./qdrant.js";
 const app = express();
 const upload = multer({ dest: "uploads/" });
 
+app.use(cors());
 app.use(express.json());
 
 initCollection();
@@ -83,5 +85,7 @@ app.post("/ask", async (req, res) => {
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.listen(3000, () =>
-  console.log("Server running on http://localhost:3000\nSwagger → http://localhost:3000/docs")
+  console.log(
+    "Server running on http://localhost:3000\nSwagger → http://localhost:3000/docs"
+  )
 );

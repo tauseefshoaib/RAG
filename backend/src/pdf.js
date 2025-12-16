@@ -5,24 +5,25 @@ import { embedText } from "./embeddings.js";
 import { upsertVectors } from "./qdrant.js";
 
 const require = createRequire(import.meta.url);
-const pdf = require("pdf-parse");
+const pdf = require("pdf-parse"); // ✅ now this IS a function
 
 export async function processPdf(filePath) {
   const buffer = fs.readFileSync(filePath);
-  const data = await pdf(buffer);
+
+  const data = await pdf(buffer); // ✅ works
 
   const chunks = chunkText(data.text);
   const docId = uuid();
 
-  for (let i = 0; i < chunks.length; i++) {
-    const embedding = await embedText(chunks[i]);
+  for (const chunk of chunks) {
+    const embedding = await embedText(chunk);
 
     await upsertVectors({
       id: uuid(),
       vector: embedding,
       payload: {
         docId,
-        text: chunks[i],
+        text: chunk,
       },
     });
   }
