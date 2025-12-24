@@ -1,14 +1,14 @@
 import express from "express";
 import multer from "multer";
 import cors from "cors";
-import swaggerUi from "swagger-ui-express";
-import { swaggerSpec } from "./swagger.js";
 
 import { processPdf } from "./pdf.js";
 import { initCollection } from "./qdrant.js";
 import { streamAnswer } from "./qa.js";
 
 const app = express();
+
+// Multer setup (disk storage)
 const upload = multer({ dest: "uploads/" });
 
 // Middleware
@@ -22,32 +22,6 @@ await initCollection();
  * ============================
  * Upload PDF
  * ============================
- */
-/**
- * @swagger
- * /upload-pdf:
- *   post:
- *     summary: Upload a PDF and index it into Qdrant
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               pdf:
- *                 type: string
- *                 format: binary
- *     responses:
- *       200:
- *         description: PDF processed successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 docId:
- *                   type: string
  */
 app.post("/upload-pdf", upload.single("pdf"), async (req, res) => {
   try {
@@ -68,46 +42,7 @@ app.post("/upload-pdf", upload.single("pdf"), async (req, res) => {
  * Ask Question (STREAMING)
  * ============================
  */
-/**
- * @swagger
- * /ask:
- *   post:
- *     summary: Ask a question (streamed response)
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - docId
- *               - question
- *             properties:
- *               docId:
- *                 type: string
- *               question:
- *                 type: string
- *     responses:
- *       200:
- *         description: Streamed text response
- */
 app.post("/ask", streamAnswer);
-
-/**
- * ============================
- * Swagger Docs
- * ============================
- */
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-/**
- * ============================
- * Health Check
- * ============================
- */
-app.get("/health", (_, res) => {
-  res.json({ status: "ok" });
-});
 
 /**
  * ============================
@@ -117,5 +52,4 @@ app.get("/health", (_, res) => {
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`Swagger → http://localhost:${PORT}/docs`);
 });

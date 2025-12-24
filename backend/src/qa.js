@@ -46,7 +46,7 @@ ${question}
 
       const json = JSON.parse(line);
       if (json.response) {
-        res.write(json.response); // 🚀 stream token
+        res.write(json.response); // stream token
       }
     }
   });

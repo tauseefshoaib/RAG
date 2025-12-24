@@ -8,6 +8,8 @@ function App() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const uploadPdf = async () => {
@@ -16,29 +18,40 @@ function App() {
     const formData = new FormData();
     formData.append("pdf", file);
 
+    // Start progress UI
+    setUploading(true);
     setUploadProgress(5);
-    setLoading(true);
 
-    // Fake progress while backend chunks PDF
+    // 🔑 Force React to paint progress bar before fetch
+    await new Promise((r) => setTimeout(r, 100));
+
+    // Fake progress while backend processes PDF
     const progressInterval = setInterval(() => {
       setUploadProgress((p) => (p < 90 ? p + 5 : p));
     }, 400);
 
-    const res = await fetch(`${API}/upload-pdf`, {
-      method: "POST",
-      body: formData,
-    });
+    try {
+      const res = await fetch(`${API}/upload-pdf`, {
+        method: "POST",
+        body: formData,
+      });
 
-    clearInterval(progressInterval);
+      const data = await res.json();
+      setDocId(data.docId);
 
-    const data = await res.json();
-    setDocId(data.docId);
-    setUploadProgress(100);
-
-    setTimeout(() => {
-      setUploadProgress(0);
-      setLoading(false);
-    }, 500);
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+    } catch (err) {
+      console.error(err);
+      alert("Upload failed");
+      clearInterval(progressInterval);
+    } finally {
+      // Keep bar visible briefly at 100%
+      setTimeout(() => {
+        setUploading(false);
+        setUploadProgress(0);
+      }, 500);
+    }
   };
 
   const askQuestion = async () => {
@@ -49,24 +62,29 @@ function App() {
     setAnswer("");
     setLoading(true);
 
-    const res = await fetch(`${API}/ask`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ docId, question }),
-    });
+    try {
+      const res = await fetch(`${API}/ask`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ docId, question }),
+      });
 
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder("utf-8");
+      if (!res.body) return;
 
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder("utf-8");
 
-      const chunk = decoder.decode(value);
-      setAnswer((prev) => prev + chunk); // 🚀 stream to UI
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        setAnswer((prev) => prev + decoder.decode(value));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to get answer");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -84,11 +102,11 @@ function App() {
             accept="application/pdf"
             onChange={(e) => setFile(e.target.files[0])}
           />
-          <button onClick={uploadPdf} disabled={loading}>
-            Upload PDF
+          <button onClick={uploadPdf} disabled={uploading}>
+            {uploading ? "Uploading..." : "Upload PDF"}
           </button>
 
-          {uploadProgress > 0 && (
+          {uploading && (
             <div className="progress">
               <div
                 className="progress-bar"
@@ -100,8 +118,7 @@ function App() {
 
         {docId && (
           <div className="doc-id">
-            <strong>Document ID:</strong>
-            <span>{docId}</span>
+            <strong>Document ID:</strong> {docId}
           </div>
         )}
 
@@ -112,6 +129,13 @@ function App() {
             placeholder="Ask a question from the document..."
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !loading) {
+                e.preventDefault();
+                askQuestion();
+              }
+              askQuestion;
+            }}
           />
           <button onClick={askQuestion} disabled={loading}>
             Ask

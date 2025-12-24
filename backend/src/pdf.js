@@ -5,12 +5,12 @@ import { embedText } from "./embeddings.js";
 import { upsertVectors } from "./qdrant.js";
 
 const require = createRequire(import.meta.url);
-const pdf = require("pdf-parse"); // ✅ now this IS a function
+const pdf = require("pdf-parse"); 
 
 export async function processPdf(filePath) {
   const buffer = fs.readFileSync(filePath);
 
-  const data = await pdf(buffer); // ✅ works
+  const data = await pdf(buffer); 
 
   const chunks = chunkText(data.text);
   const docId = uuid();
