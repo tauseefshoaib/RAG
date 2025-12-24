@@ -1,22 +1,45 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const API = "http://localhost:3000";
 
 function App() {
   const [file, setFile] = useState(null);
-  const [docId, setDocId] = useState("");
+
+  const [documents, setDocuments] = useState([]);
+  const [selectedDoc, setSelectedDoc] = useState("ALL");
+
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  /* ============================
+     Fetch uploaded documents
+     ============================ */
+  const fetchDocuments = async () => {
+    try {
+      const res = await fetch(`${API}/documents`);
+      const data = await res.json();
+      setDocuments(data);
+    } catch (err) {
+      console.error("Failed to fetch documents", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
+
+  /* ============================
+     Upload PDF
+     ============================ */
   const uploadPdf = async () => {
     if (!file) return alert("Select a PDF");
 
     setAnswer("");
     setQuestion("");
-    setDocId("");
 
     const formData = new FormData();
     formData.append("pdf", file);
@@ -35,7 +58,11 @@ function App() {
       });
 
       const data = await res.json();
-      setDocId(data.docId);
+
+      // Automatically switch context to newly uploaded doc
+      setSelectedDoc(data.docId);
+
+      await fetchDocuments();
 
       clearInterval(progressInterval);
       setUploadProgress(100);
@@ -51,9 +78,12 @@ function App() {
     }
   };
 
+  /* ============================
+     Ask Question (Streaming)
+     ============================ */
   const askQuestion = async () => {
-    if (!docId || !question.trim()) {
-      return alert("Upload PDF and enter a question");
+    if (!question.trim()) {
+      return alert("Enter a question");
     }
 
     setAnswer("");
@@ -63,7 +93,10 @@ function App() {
       const res = await fetch(`${API}/ask`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ docId, question }),
+        body: JSON.stringify({
+          docId: selectedDoc,
+          question,
+        }),
       });
 
       if (!res.body) return;
@@ -84,12 +117,35 @@ function App() {
     }
   };
 
+  /* ============================
+     UI
+     ============================ */
   return (
     <div className="app">
       <div className="card">
-        <h2>📄 PDF Q&A</h2>
+        <div className="header">
+          <h2>📄 PDF Q&A</h2>
+
+          {documents.length > 0 && (
+            <select
+              className="doc-selector"
+              value={selectedDoc}
+              onChange={(e) => setSelectedDoc(e.target.value)}
+              disabled={uploading}
+            >
+              <option value="ALL">📚 All Documents</option>
+
+              {documents.map((doc) => (
+                <option key={doc.id} value={doc.id}>
+                  📄 {doc.name}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+
         <p className="subtitle">
-          Ask questions from your PDF using a local AI (Ollama + Qdrant)
+          Ask questions from uploaded PDFs using local AI
         </p>
 
         {/* Upload */}
@@ -113,17 +169,19 @@ function App() {
           </div>
         )}
 
-        {docId && (
-          <div className="doc-id">
-            <strong>Document ID:</strong> {docId}
-          </div>
-        )}
+        {/* Active context */}
+        <div className="doc-id">
+          <strong>Context:</strong>{" "}
+          {selectedDoc === "ALL"
+            ? "All Documents"
+            : documents.find((d) => d.id === selectedDoc)?.name || selectedDoc}
+        </div>
 
         {/* Question */}
         <div className="section">
           <input
             type="text"
-            placeholder="Ask a question from the document..."
+            placeholder="Ask a question..."
             value={question}
             disabled={uploading}
             onChange={(e) => setQuestion(e.target.value)}
