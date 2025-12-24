@@ -11,51 +11,48 @@ function App() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-const uploadPdf = async () => {
-  if (!file) return alert("Select a PDF");
+  const uploadPdf = async () => {
+    if (!file) return alert("Select a PDF");
 
-  // 🔹 Clear previous answer immediately when upload starts
-  setAnswer("");
-  setQuestion("");
+    setAnswer("");
+    setQuestion("");
+    setDocId("");
 
-  const formData = new FormData();
-  formData.append("pdf", file);
+    const formData = new FormData();
+    formData.append("pdf", file);
 
-  setUploading(true);
-  setUploadProgress(5);
+    setUploading(true);
+    setUploadProgress(5);
 
-  await new Promise((r) => setTimeout(r, 100));
+    const progressInterval = setInterval(() => {
+      setUploadProgress((p) => (p < 90 ? p + 5 : p));
+    }, 400);
 
-  const progressInterval = setInterval(() => {
-    setUploadProgress((p) => (p < 90 ? p + 5 : p));
-  }, 400);
+    try {
+      const res = await fetch(`${API}/upload-pdf`, {
+        method: "POST",
+        body: formData,
+      });
 
-  try {
-    const res = await fetch(`${API}/upload-pdf`, {
-      method: "POST",
-      body: formData,
-    });
+      const data = await res.json();
+      setDocId(data.docId);
 
-    const data = await res.json();
-    setDocId(data.docId);
-
-    clearInterval(progressInterval);
-    setUploadProgress(100);
-  } catch (err) {
-    console.error(err);
-    alert("Upload failed");
-    clearInterval(progressInterval);
-  } finally {
-    setTimeout(() => {
-      setUploading(false);
-      setUploadProgress(0);
-    }, 500);
-  }
-};
-
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+    } catch (err) {
+      console.error(err);
+      alert("Upload failed");
+      clearInterval(progressInterval);
+    } finally {
+      setTimeout(() => {
+        setUploading(false);
+        setUploadProgress(0);
+      }, 500);
+    }
+  };
 
   const askQuestion = async () => {
-    if (!docId || !question) {
+    if (!docId || !question.trim()) {
       return alert("Upload PDF and enter a question");
     }
 
@@ -105,16 +102,16 @@ const uploadPdf = async () => {
           <button onClick={uploadPdf} disabled={uploading}>
             {uploading ? "Uploading..." : "Upload PDF"}
           </button>
-
-          {uploading && (
-            <div className="progress">
-              <div
-                className="progress-bar"
-                style={{ width: `${uploadProgress}%` }}
-              />
-            </div>
-          )}
         </div>
+
+        {uploading && (
+          <div className="progress">
+            <div
+              className="progress-bar"
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </div>
+        )}
 
         {docId && (
           <div className="doc-id">
@@ -128,16 +125,16 @@ const uploadPdf = async () => {
             type="text"
             placeholder="Ask a question from the document..."
             value={question}
+            disabled={uploading}
             onChange={(e) => setQuestion(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !loading) {
+              if (e.key === "Enter" && !loading && !uploading) {
                 e.preventDefault();
                 askQuestion();
               }
-              askQuestion;
             }}
           />
-          <button onClick={askQuestion} disabled={loading}>
+          <button onClick={askQuestion} disabled={loading || uploading}>
             Ask
           </button>
         </div>
