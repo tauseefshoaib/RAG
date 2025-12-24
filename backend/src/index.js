@@ -102,15 +102,6 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 /**
  * ============================
- * Health Check
- * ============================
- */
-app.get("/health", (_, res) => {
-  res.json({ status: "ok" });
-});
-
-/**
- * ============================
  * Start Server
  * ============================
  */
