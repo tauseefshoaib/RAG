@@ -8,51 +8,51 @@ function App() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  const uploadPdf = async () => {
-    if (!file) return alert("Select a PDF");
+const uploadPdf = async () => {
+  if (!file) return alert("Select a PDF");
 
-    const formData = new FormData();
-    formData.append("pdf", file);
+  // 🔹 Clear previous answer immediately when upload starts
+  setAnswer("");
+  setQuestion("");
 
-    // Start progress UI
-    setUploading(true);
-    setUploadProgress(5);
+  const formData = new FormData();
+  formData.append("pdf", file);
 
-    // 🔑 Force React to paint progress bar before fetch
-    await new Promise((r) => setTimeout(r, 100));
+  setUploading(true);
+  setUploadProgress(5);
 
-    // Fake progress while backend processes PDF
-    const progressInterval = setInterval(() => {
-      setUploadProgress((p) => (p < 90 ? p + 5 : p));
-    }, 400);
+  await new Promise((r) => setTimeout(r, 100));
 
-    try {
-      const res = await fetch(`${API}/upload-pdf`, {
-        method: "POST",
-        body: formData,
-      });
+  const progressInterval = setInterval(() => {
+    setUploadProgress((p) => (p < 90 ? p + 5 : p));
+  }, 400);
 
-      const data = await res.json();
-      setDocId(data.docId);
+  try {
+    const res = await fetch(`${API}/upload-pdf`, {
+      method: "POST",
+      body: formData,
+    });
 
-      clearInterval(progressInterval);
-      setUploadProgress(100);
-    } catch (err) {
-      console.error(err);
-      alert("Upload failed");
-      clearInterval(progressInterval);
-    } finally {
-      // Keep bar visible briefly at 100%
-      setTimeout(() => {
-        setUploading(false);
-        setUploadProgress(0);
-      }, 500);
-    }
-  };
+    const data = await res.json();
+    setDocId(data.docId);
+
+    clearInterval(progressInterval);
+    setUploadProgress(100);
+  } catch (err) {
+    console.error(err);
+    alert("Upload failed");
+    clearInterval(progressInterval);
+  } finally {
+    setTimeout(() => {
+      setUploading(false);
+      setUploadProgress(0);
+    }, 500);
+  }
+};
+
 
   const askQuestion = async () => {
     if (!docId || !question) {
