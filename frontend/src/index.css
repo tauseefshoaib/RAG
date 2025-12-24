@@ -66,8 +66,7 @@ button:disabled {
 }
 
 .progress {
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin: 20px 0;
   background: #020617;
   border-radius: 999px;
   overflow: hidden;
