@@ -21,7 +21,7 @@ body {
   border-radius: 14px;
   padding: 32px;
   width: 100%;
-  max-width: 560px;
+  max-width: 60%;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
 }
 
@@ -118,4 +118,19 @@ button:disabled {
 
 .answer h4 {
   margin-top: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.doc-selector {
+  padding: 6px 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  max-width: 400px;
 }

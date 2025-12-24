@@ -36,21 +36,26 @@ export async function upsertVectors(point) {
  * Search vectors by similarity + docId
  */
 export async function searchVectors(vector, docId) {
+  const body = {
+    vector,
+    limit: 4,
+    with_payload: true,
+  };
+
+  if (docId !== "ALL") {
+    body.filter = {
+      must: [
+        {
+          key: "docId",
+          match: { value: docId },
+        },
+      ],
+    };
+  }
+
   const res = await axios.post(
     `${QDRANT_URL}/collections/${COLLECTION}/points/search`,
-    {
-      vector,
-      limit: 4,
-      with_payload: true,
-      filter: {
-        must: [
-          {
-            key: "docId",
-            match: { value: docId },
-          },
-        ],
-      },
-    }
+    body
   );
 
   return res.data.result;
