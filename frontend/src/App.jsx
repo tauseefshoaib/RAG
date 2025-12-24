@@ -129,6 +129,13 @@ function App() {
             placeholder="Ask a question from the document..."
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !loading) {
+                e.preventDefault();
+                askQuestion();
+              }
+              askQuestion;
+            }}
           />
           <button onClick={askQuestion} disabled={loading}>
             Ask
