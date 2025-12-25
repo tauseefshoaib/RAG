@@ -144,9 +144,21 @@ function App() {
           )}
         </div>
 
-        <p className="subtitle">
-          Ask questions from uploaded PDFs using local AI
-        </p>
+        <div className="context">
+          <p className="subtitle">
+            Ask questions from uploaded PDFs using local AI
+          </p>
+
+          {documents.length > 0 && (
+            <div className="doc-id">
+              <strong>Context:</strong>
+              {selectedDoc === "ALL"
+                ? "All Documents"
+                : documents.find((d) => d.id === selectedDoc)?.name ||
+                  selectedDoc}
+            </div>
+          )}
+        </div>
 
         {/* Upload */}
         <div className="section">
@@ -170,12 +182,12 @@ function App() {
         )}
 
         {/* Active context */}
-        <div className="doc-id">
+        {/* <div className="doc-id">
           <strong>Context:</strong>{" "}
           {selectedDoc === "ALL"
             ? "All Documents"
             : documents.find((d) => d.id === selectedDoc)?.name || selectedDoc}
-        </div>
+        </div> */}
 
         {/* Question */}
         <div className="section">

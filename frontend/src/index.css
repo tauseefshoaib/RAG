@@ -18,11 +18,11 @@ body {
 
 .card {
   background: #020617;
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 32px;
   width: 100%;
-  max-width: 60%;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  max-width: 50%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
 h2 {
@@ -133,4 +133,11 @@ button:disabled {
   border-radius: 6px;
   border: 1px solid #ccc;
   max-width: 400px;
+}
+
+.context {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 20px;
 }
