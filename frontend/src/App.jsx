@@ -35,48 +35,6 @@ function App() {
   /* ============================
      Upload PDF
      ============================ */
-  // const uploadPdf = async () => {
-  //   if (!file) return alert("Select a PDF");
-
-  //   setAnswer("");
-  //   setQuestion("");
-
-  //   const formData = new FormData();
-  //   formData.append("pdf", file);
-
-  //   setUploading(true);
-  //   setUploadProgress(5);
-
-  //   const progressInterval = setInterval(() => {
-  //     setUploadProgress((p) => (p < 90 ? p + 5 : p));
-  //   }, 400);
-
-  //   try {
-  //     const res = await fetch(`${API}/upload-pdf`, {
-  //       method: "POST",
-  //       body: formData,
-  //     });
-
-  //     const data = await res.json();
-
-  //     // Automatically switch context to newly uploaded doc
-  //     setSelectedDoc(data.docId);
-
-  //     await fetchDocuments();
-
-  //     clearInterval(progressInterval);
-  //     setUploadProgress(100);
-  //   } catch (err) {
-  //     console.error(err);
-  //     alert("Upload failed");
-  //     clearInterval(progressInterval);
-  //   } finally {
-  //     setTimeout(() => {
-  //       setUploading(false);
-  //       setUploadProgress(0);
-  //     }, 500);
-  //   }
-  // };
 
   const uploadFile = async () => {
     if (!file) return alert("Select a file");

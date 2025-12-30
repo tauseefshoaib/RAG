@@ -48,29 +48,6 @@ await initCollection();
  * - Stores vectors in Qdrant
  * - Tracks document metadata in memory
  */
-// app.post("/upload-pdf", upload.single("pdf"), async (req, res) => {
-//   try {
-//     // Validate input
-//     if (!req.file) {
-//       return res.status(400).json({ error: "PDF file is required" });
-//     }
-
-//     // Process PDF → embed → store vectors
-//     const docId = await processPdf(req.file.path);
-
-//     // Save document metadata (in-memory)
-//     documents.set(docId, {
-//       name: req.file.originalname,
-//       uploadedAt: Date.now(),
-//     });
-
-//     // Return document ID to frontend
-//     res.json({ docId });
-//   } catch (err) {
-//     console.error("Upload error:", err);
-//     res.status(500).json({ error: "Failed to process PDF" });
-//   }
-// });
 
 app.post("/upload-file", upload.single("file"), async (req, res) => {
   try {

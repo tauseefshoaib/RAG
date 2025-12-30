@@ -1,6 +1,6 @@
 import cosine from "compute-cosine-similarity";
 
-export function dedupeChunks(results, similarityThreshold = 0.9) {
+export function dedupeChunks(results, similarityThreshold = 0.6) {
   const kept = [];
 
   for (const r of results) {
