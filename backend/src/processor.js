@@ -41,13 +41,6 @@ async function extractPdfText(filePath) {
 /* ============================
    Image OCR (Tesseract.js)
    ============================ */
-// async function extractImageText(filePath) {
-//   const result = await Tesseract.recognize(filePath, "eng", {
-//     logger: () => {}, // disable noisy logs
-//   });
-
-//   return result.data.text;
-// }
 
 export async function extractImageText(imageBuffer) {
   try {
@@ -59,7 +52,6 @@ export async function extractImageText(imageBuffer) {
       },
     });
 
-    console.log(data.text);
     return data.text.trim();
   } catch (error) {
     console.error("OCR error:", error);
