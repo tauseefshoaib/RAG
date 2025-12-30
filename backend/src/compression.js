@@ -15,7 +15,7 @@ ${text}
     });
 
     if (!res.data || typeof res.data.response !== "string") {
-      return ""; // IMPORTANT
+      return "";
     }
 
     return res.data.response.trim();
