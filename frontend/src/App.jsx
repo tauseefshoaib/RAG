@@ -123,7 +123,7 @@ function App() {
     <div className="app">
       <div className="card">
         <div className="header">
-          <h2>📄 PDF Q&A</h2>
+          <h2>📄 Multimodal Q&A</h2>
 
           {documents.length > 0 && (
             <select
@@ -145,7 +145,7 @@ function App() {
 
         <div className="context">
           <p className="subtitle">
-            Ask questions from uploaded PDFs using local AI
+            Ask questions from uploaded PDFs/Images using local AI
           </p>
 
           {documents.length > 0 && (
@@ -179,14 +179,6 @@ function App() {
             />
           </div>
         )}
-
-        {/* Active context */}
-        {/* <div className="doc-id">
-          <strong>Context:</strong>{" "}
-          {selectedDoc === "ALL"
-            ? "All Documents"
-            : documents.find((d) => d.id === selectedDoc)?.name || selectedDoc}
-        </div> */}
 
         {/* Question */}
         <div className="section">
