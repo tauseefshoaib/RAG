@@ -39,6 +39,7 @@ export async function searchVectors(vector, docId) {
   const body = {
     vector,
     limit: 4,
+    with_vector: true,
     with_payload: true,
   };
 
